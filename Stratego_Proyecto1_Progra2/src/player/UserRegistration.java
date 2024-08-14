@@ -11,6 +11,7 @@ public class UserRegistration {
 
     private List<User> users;
     private User loggedInUser;
+    private int totalGamesPlayed = 0;
 
     public UserRegistration() {
         this.users = new ArrayList<>();
@@ -89,6 +90,40 @@ public class UserRegistration {
         return users.size();
     }
 
+    public List<User> getActiveUsers() {
+        List<User> activeUsers = new ArrayList<>();
+        for (User user : users) {
+            if (user.isActive()) {
+                activeUsers.add(user);
+            }
+        }
+        return activeUsers;
+    }
+
+    public int getActiveUserCount() {
+        return (int) users.stream().filter(User::isActive).count();
+    }
+
+    public int getHistoricalUserCount() {
+        return users.size();
+    }
+
+    public void incrementTotalGamesPlayed() {
+        totalGamesPlayed++;
+    }
+
+    public int getTotalGamesPlayed() {
+        return totalGamesPlayed;
+    }
+
+    public int getGoodWinsCount() {
+        return users.stream().mapToInt(User::getGamesWithGood).sum();
+    }
+
+    public int getBadWinsCount() {
+        return users.stream().mapToInt(User::getGamesWithBad).sum();
+    }
+
     public List<User> getOpponents(User currentUser) {
         if (currentUser == null) {
             throw new IllegalArgumentException("Current user cannot be null");
@@ -112,5 +147,16 @@ public class UserRegistration {
             }
         }
         return usernames;
+    }
+
+    // Método para eliminar un usuario
+    public void deleteUser(String username) {
+        users.removeIf(user -> user.getUsername().equals(username));
+        System.out.println("User deleted: " + username);
+
+        // Si el usuario eliminado es el que estaba logueado, cerramos la sesión
+        if (loggedInUser != null && loggedInUser.getUsername().equals(username)) {
+            logoutUser();
+        }
     }
 }

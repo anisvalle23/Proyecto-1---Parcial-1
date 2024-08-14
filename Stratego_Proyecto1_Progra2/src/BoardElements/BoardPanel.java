@@ -5,6 +5,7 @@ import java.awt.*;
 import javax.swing.border.TitledBorder;
 
 public class BoardPanel extends JPanel {
+
     private static final int BOARD_SIZE = 10;
     private static final int TILE_SIZE = 70;
     private static final int PANEL_WIDTH = 1200;
@@ -16,6 +17,7 @@ public class BoardPanel extends JPanel {
     private static final Color DARK_RED = new Color(151, 0, 0);
     private static final Color GREEN = new Color(14, 122, 69);
     private static final Color GOLD = new Color(255, 223, 85);
+    Font labelFont = new Font("Arial", Font.BOLD, 18);
 
     private Color color1 = new Color(255, 223, 85);
     private Color color2 = new Color(255, 223, 85);
@@ -27,9 +29,16 @@ public class BoardPanel extends JPanel {
     private JLabel turnLabel;  // Label para indicar el turno
     private JButton surrenderButtonPlayer1;
     private JButton surrenderButtonPlayer2;
-    private PieceInfoPanel pieceInfoPanel;  // Panel para mostrar información de las piezas
+    private String player1Name;
+    private String player2Name;
+    private SurrenderListener surrenderListener;
+    private boolean isPlayer1Turn;
+    private JLayeredPane layeredPane;
+    private JLabel pieceInfoLabel;
 
-    public BoardPanel() {
+    public BoardPanel(String player1Name, String player2Name) {
+        this.player1Name = player1Name;
+        this.player2Name = player2Name;
         setLayout(null);
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         initBackground();
@@ -38,8 +47,8 @@ public class BoardPanel extends JPanel {
         initDestroyedPiecesPanels();
         initSurrenderButtons(); // Inicializar los botones de rendición
         initTurnLabel(); // Inicializar el label de turno
-        initPieceInfoPanel(); // Inicializar el panel de información de las piezas
     }
+    
 
     private void initBackground() {
         background = new JLabel(new ImageIcon(getClass().getClassLoader().getResource("resourcesmain/back.png")));
@@ -47,12 +56,25 @@ public class BoardPanel extends JPanel {
         add(background);
     }
 
-    private void initLabels() {
-        selectedPieceLabel = new JLabel();
-        selectedPieceLabel.setBounds(980, 75, DISPLAY_WIDTH, DISPLAY_HEIGHT);
-        add(selectedPieceLabel);
-        setComponentZOrder(selectedPieceLabel, 0); // Ensure the label is above the background
-    }
+private void initLabels() {
+    selectedPieceLabel = new JLabel();
+    selectedPieceLabel.setBounds(980, 75, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    add(selectedPieceLabel);
+    setComponentZOrder(selectedPieceLabel, 0); // Ensure the label is above the background
+
+
+    // Configurar el label de la información de la pieza seleccionada
+    pieceInfoLabel = new JLabel();
+    pieceInfoLabel.setBounds(25, 15, 250, 150); // Aumentar el tamaño para que sea más visible
+    pieceInfoLabel.setFont(labelFont);
+    pieceInfoLabel.setForeground(Color.WHITE); // Color del texto
+    pieceInfoLabel.setOpaque(true); // Permite que el fondo del label sea visible
+    pieceInfoLabel.setBackground(new Color(0, 0, 0, 150)); // Fondo semitransparente para mayor legibilidad
+    pieceInfoLabel.setVerticalAlignment(JLabel.TOP); // Alineación del texto en la parte superior
+    add(pieceInfoLabel);
+    setComponentZOrder(pieceInfoLabel, 0); // Asegurar que el label esté sobre el fondo
+}
+
 
     private void initBoard() {
         int offsetX = (getPreferredSize().width - BOARD_SIZE * TILE_SIZE) / 2;
@@ -71,40 +93,93 @@ public class BoardPanel extends JPanel {
     }
 
     private void initDestroyedPiecesPanels() {
-        destroyedPiecesPanelVillains = createDestroyedPiecesPanel("Player 1 Destroyed", 25, 320, GREEN);
-        destroyedPiecesPanelHeroes = createDestroyedPiecesPanel("Player 2 Destroyed", 980, 320, DARK_RED);
+        // Heroes (Player 1) con color verde
+        destroyedPiecesPanelHeroes = createDestroyedPiecesPanel(player1Name + "  Destroyed", 25, 320, GREEN);
+
+        // Villains (Player 2) con color rojo oscuro
+        destroyedPiecesPanelVillains = createDestroyedPiecesPanel(player2Name + " Destroyed", 980, 320, DARK_RED);
     }
 
+    // Método que crea el panel de piezas destruidas
     private JPanel createDestroyedPiecesPanel(String title, int x, int y, Color bgColor) {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(8, 5, 5, 5));
-        panel.setBounds(x, y, DESTROYED_PANEL_WIDTH, DESTROYED_PANEL_HEIGHT);
+        panel.setBounds(x, y, 200, 500);
         TitledBorder border = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(GOLD), title);
         border.setTitleColor(GOLD);
         panel.setBorder(border);
-        panel.setBackground(bgColor);  // Set panel background color
-        panel.setOpaque(true);  // Make the panel opaque to show the background color
+        panel.setBackground(bgColor);
+        panel.setOpaque(true);
         add(panel);
-        setComponentZOrder(panel, 0); // Ensure the panel is above the background
+        setComponentZOrder(panel, 0);
         return panel;
     }
 
+    public void updateLabelsAndButtons(String player1Name, String player2Name) {
+        // Actualiza los textos de los paneles de piezas destruidas
+        TitledBorder heroesBorder = (TitledBorder) destroyedPiecesPanelHeroes.getBorder();
+        heroesBorder.setTitle(player1Name + " Destroyed");
+
+        TitledBorder villainsBorder = (TitledBorder) destroyedPiecesPanelVillains.getBorder();
+        villainsBorder.setTitle(player2Name + " Destroyed");
+
+        destroyedPiecesPanelHeroes.repaint();
+        destroyedPiecesPanelVillains.repaint();
+
+        // Actualiza los textos de los botones de rendición
+        surrenderButtonPlayer1.setText("Surrender " + player1Name);
+        surrenderButtonPlayer2.setText("Surrender " + player2Name);
+
+        // Actualiza el label de turno
+        turnLabel.setText("Turn: " + (isPlayer1Turn ? player1Name : player2Name));
+    }
+
+    // Implementación de SurrenderListener
+    public interface SurrenderListener {
+        void onSurrender(boolean isPlayer1Surrender);
+    }
+
+    public void setSurrenderListener(SurrenderListener surrenderListener) {
+        this.surrenderListener = surrenderListener;
+    }
+
+    // Método para actualizar el turno desde afuera de la clase
+    public void setPlayerTurn(boolean isPlayer1Turn) {
+        this.isPlayer1Turn = isPlayer1Turn;
+    }
+
     private void initSurrenderButtons() {
-        surrenderButtonPlayer1 = new JButton("Player 1 Surrender");
-        surrenderButtonPlayer1.setBounds(25, 850, 200, 40); // Ajustar la posición y tamaño según sea necesario
+        // Botón de rendición para Player 1 (Heroes)
+        surrenderButtonPlayer1 = new JButton("Surrender " + player1Name);
+        surrenderButtonPlayer1.setBounds(25, 810, 200, 40);  // Colocar debajo del panel de piezas destruidas de Heroes
         surrenderButtonPlayer1.addActionListener(e -> {
-            if (surrenderListener != null) surrenderListener.onSurrender(true);
+            if (!isPlayer1Turn) {  // Verificar si es el turno de Player 1
+                JOptionPane.showMessageDialog(this, "It's not your turn!", "Turn Error", JOptionPane.ERROR_MESSAGE);
+            } else if (surrenderListener != null) {
+                int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to surrender?", "Confirm Surrender", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    surrenderListener.onSurrender(true);  // Player 1 se rinde
+                }
+            }
         });
         add(surrenderButtonPlayer1);
-        setComponentZOrder(surrenderButtonPlayer1, 0); // Ensure the button is above the background
+        setComponentZOrder(surrenderButtonPlayer1, 0); // Asegurar que el botón esté sobre el fondo
 
-        surrenderButtonPlayer2 = new JButton("Player 2 Surrender");
-        surrenderButtonPlayer2.setBounds(980, 850, 200, 40); // Ajustar la posición y tamaño según sea necesario
+        // Botón de rendición para Player 2 (Villains)
+        surrenderButtonPlayer2 = new JButton("Surrender " + player2Name);
+        surrenderButtonPlayer2.setBounds(980, 810, 200, 40);  // Colocar debajo del panel de piezas destruidas de Villains
         surrenderButtonPlayer2.addActionListener(e -> {
-            if (surrenderListener != null) surrenderListener.onSurrender(false);
+            if (isPlayer1Turn) {  // Verificar si es el turno de Player 2
+                JOptionPane.showMessageDialog(this, "It's not your turn!", "Turn Error", JOptionPane.ERROR_MESSAGE);
+            } else if (surrenderListener != null) {
+                int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to surrender?", "Confirm Surrender", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    surrenderListener.onSurrender(false);  // Player 2 se rinde
+                }
+            }
         });
         add(surrenderButtonPlayer2);
-        setComponentZOrder(surrenderButtonPlayer2, 0); // Ensure the button is above the background
+        setComponentZOrder(surrenderButtonPlayer2, 0); // Asegurar que el botón esté sobre el fondo
     }
 
     private void initTurnLabel() {
@@ -114,13 +189,6 @@ public class BoardPanel extends JPanel {
         turnLabel.setBounds(400, 10, 400, 40);
         add(turnLabel);
         setComponentZOrder(turnLabel, 0); // Ensure the label is above the background
-    }
-
-    private void initPieceInfoPanel() {
-        pieceInfoPanel = new PieceInfoPanel();
-        pieceInfoPanel.setBounds(30, 75, 200, 200); // Ajusta la posición y tamaño del panel
-        add(pieceInfoPanel);
-        setComponentZOrder(pieceInfoPanel, 0); // Asegurar que el panel esté sobre el fondo
     }
 
     public void setTileBackground() {
@@ -159,19 +227,8 @@ public class BoardPanel extends JPanel {
     public JLabel getTurnLabel() {
         return turnLabel;
     }
+    public JLabel getPieceInfoLabel() {
+    return pieceInfoLabel;
+}
 
-    public PieceInfoPanel getPieceInfoPanel() {
-        return pieceInfoPanel;
-    }
-
-    // Listener para manejar la rendición
-    private SurrenderListener surrenderListener;
-
-    public void setSurrenderListener(SurrenderListener surrenderListener) {
-        this.surrenderListener = surrenderListener;
-    }
-
-    public interface SurrenderListener {
-        void onSurrender(boolean isPlayer1Surrender);
-    }
 }

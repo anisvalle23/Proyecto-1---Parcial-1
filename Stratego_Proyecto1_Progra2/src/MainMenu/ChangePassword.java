@@ -58,6 +58,7 @@ public class ChangePassword extends javax.swing.JFrame {
         // Buttons
         AcceptButton = new JButton(new ImageIcon(getClass().getResource("/resourcesmain/botomain1.png")));
         AcceptButton.setBounds(650, 550, 150, 50);
+        AcceptButton.addActionListener(this::AcceptButtonActionPerformed);
         jPanel1.add(AcceptButton);
 
         BackButton = new JButton(new ImageIcon(getClass().getResource("/resourcesmain/botomain1.png")));
@@ -73,6 +74,41 @@ public class ChangePassword extends javax.swing.JFrame {
         // Set up JFrame content
         getContentPane().add(jPanel1);
         pack();
+    }
+
+    private void AcceptButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        String currentPassword = new String(jPasswordField1.getPassword());
+        String newPassword = jFormattedTextField1.getText();
+
+        // Validar la contraseña actual
+        if (!userRegistration.validateUser(loggedInUser.getUsername(), currentPassword)) {
+            JOptionPane.showMessageDialog(this,
+                    "Current password is incorrect.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Validar la nueva contraseña
+        if (newPassword.length() != 5) {
+            JOptionPane.showMessageDialog(this,
+                    "New password must be exactly 5 characters long.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Actualizar la contraseña
+        loggedInUser.setPassword(newPassword);
+        JOptionPane.showMessageDialog(this,
+                "Password changed successfully!",
+                "Success",
+                JOptionPane.INFORMATION_MESSAGE);
+
+        // Cerrar la ventana actual y volver a Mi Perfil
+        MyAccount myAccount = new MyAccount(userRegistration, loggedInUser);
+        myAccount.setVisible(true);
+        this.dispose();
     }
 
     private void BackButtonActionPerformed(java.awt.event.ActionEvent evt) {

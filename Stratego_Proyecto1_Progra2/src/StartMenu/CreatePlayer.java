@@ -94,7 +94,9 @@ public class CreatePlayer extends javax.swing.JFrame {
                     "User registered successfully!",
                     "Success",
                     JOptionPane.PLAIN_MESSAGE);
-            Login startMenu = new Login(userRegistration);
+            
+            // Aquí cambiamos de Login a StartMenu
+            StartMenu startMenu = new StartMenu(userRegistration);
             startMenu.setVisible(true);
             this.dispose();
         } else {

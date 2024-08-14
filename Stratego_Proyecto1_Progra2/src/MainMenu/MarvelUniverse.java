@@ -1,6 +1,8 @@
 package MainMenu;
 
 import MainComponents.MainMenu;
+import java.awt.Color;
+import java.util.List;
 import player.User;
 import player.UserRegistration;
 
@@ -67,13 +69,51 @@ public class MarvelUniverse extends javax.swing.JFrame {
         pack();
     }
 
-    private void RankingButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        // Implement the action for the Ranking button here
-    }
+ private void RankingButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    List<User> activeUsers = userRegistration.getActiveUsers(); // Método que debes crear para obtener usuarios activos
+    activeUsers.sort((u1, u2) -> Integer.compare(u2.getPoints(), u1.getPoints())); // Ordenar por puntos
 
-    private void BattleButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        // Implement the action for the Battle button here
+    StringBuilder rankingMessage = new StringBuilder("<html><body style='color:white;'><h2>Ranking</h2><table><tr><th>Posición</th><th>Username</th><th>Puntos</th></tr>");
+    int position = 1;
+    for (User user : activeUsers) {
+        rankingMessage.append("<tr><td>").append(position).append("</td><td>")
+                      .append(user.getUsername()).append("</td><td>")
+                      .append(user.getPoints()).append("</td></tr>");
+        position++;
     }
+    rankingMessage.append("</table></body></html>");
+
+    JLabel rankingLabel = new JLabel(rankingMessage.toString());
+    UIManager.put("OptionPane.messageForeground", Color.WHITE);
+    UIManager.put("OptionPane.background", Color.BLACK);
+    UIManager.put("Panel.background", Color.BLACK);
+    JOptionPane.showMessageDialog(this, rankingLabel, "Ranking", JOptionPane.PLAIN_MESSAGE);
+}
+
+
+
+private void BattleButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    int activeUsersCount = userRegistration.getActiveUserCount();
+    int historicalUsersCount = userRegistration.getHistoricalUserCount();
+    int totalGamesPlayed = userRegistration.getTotalGamesPlayed(); // Sumar todas las partidas jugadas por todos los usuarios
+    int goodWins = userRegistration.getGoodWinsCount();
+    int badWins = userRegistration.getBadWinsCount();
+
+    String statsMessage = String.format("<html><body style='color:white;'><h2>Battle Statistics</h2>"
+            + "<p>Active Users: %d</p>"
+            + "<p>Historical Users: %d</p>"
+            + "<p>Total Games Played: %d</p>"
+            + "<p>Heroes Wins: %d</p>"
+            + "<p>Villains Wins: %d</p></body></html>",
+            activeUsersCount, historicalUsersCount, totalGamesPlayed, goodWins, badWins);
+
+    JLabel statsLabel = new JLabel(statsMessage);
+    UIManager.put("OptionPane.messageForeground", Color.WHITE);
+    UIManager.put("OptionPane.background", Color.BLACK);
+    UIManager.put("Panel.background", Color.BLACK);
+    JOptionPane.showMessageDialog(this, statsLabel, "Battle Statistics", JOptionPane.PLAIN_MESSAGE);
+}
+
 
     private void MainMenuActionPerformed(java.awt.event.ActionEvent evt) {
         MainMenu main = new MainMenu(userRegistration, loggedInUser);

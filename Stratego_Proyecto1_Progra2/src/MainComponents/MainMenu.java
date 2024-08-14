@@ -86,56 +86,58 @@ public class MainMenu extends JFrame {
         pack();
     }
 
-    private void StrategoButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        UIManager.put("OptionPane.messageForeground", Color.WHITE);
-        UIManager.put("OptionPane.background", Color.BLACK);
-        UIManager.put("Panel.background", Color.BLACK);
+private void StrategoButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    UIManager.put("OptionPane.messageForeground", Color.WHITE);
+    UIManager.put("OptionPane.background", Color.BLACK);
+    UIManager.put("Panel.background", Color.BLACK);
 
-        if (userRegistration.getUserCount() < 2) {
-            JOptionPane.showMessageDialog(this,
-                    "You need at least two users registered to play the game.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            System.out.println("Not enough users to start the game.");
-            return;
-        }
-
-        if (loggedInUser == null) {
-            JOptionPane.showMessageDialog(this,
-                    "No user is currently logged in. Please log in first.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            System.out.println("Attempt to start game without a logged-in user.");
-            return;
-        }
-
-        User opponent = OpponentSelector.selectOpponent(loggedInUser, userRegistration);
-        if (opponent == null) {
-            return;
-        }
-
-        String selectedMode = GameModeSelector.selectGameMode();
-        if (selectedMode == null) {
-            return;
-        }
-
-        String playerTeam = selectedMode.equals("Heroes") ? "good" : "bad";
-        String opponentTeam = playerTeam.equals("good") ? "bad" : "good";
-
+    if (userRegistration.getUserCount() < 2) {
         JOptionPane.showMessageDialog(this,
-                "Starting game against " + opponent.getUsername()
-                + "\nYour team: " + playerTeam
-                + "\nOpponent's team: " + opponentTeam,
-                "Game Start",
-                JOptionPane.INFORMATION_MESSAGE);
-
-        System.out.println("Game started against " + opponent.getUsername()
-                + " with teams: " + playerTeam + " vs " + opponentTeam);
-
-        Board gameBoard = new Board(userRegistration, loggedInUser, opponent, playerTeam, opponentTeam);
-        gameBoard.setVisible(true);
-        this.setVisible(false);
+                "You need at least two users registered to play the game.",
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        System.out.println("Not enough users to start the game.");
+        return;
     }
+
+    if (loggedInUser == null) {
+        JOptionPane.showMessageDialog(this,
+                "No user is currently logged in. Please log in first.",
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        System.out.println("Attempt to start game without a logged-in user.");
+        return;
+    }
+
+    User opponent = OpponentSelector.selectOpponent(loggedInUser, userRegistration);
+    if (opponent == null) {
+        return;
+    }
+
+    String selectedMode = GameModeSelector.selectGameMode();
+    if (selectedMode == null) {
+        return;
+    }
+
+    String playerTeam = selectedMode.equals("Heroes") ? "good" : "bad";
+    String opponentTeam = playerTeam.equals("good") ? "bad" : "good";
+
+    JOptionPane.showMessageDialog(this,
+            "Starting game against " + opponent.getUsername()
+            + "\nYour team: " + playerTeam
+            + "\nOpponent's team: " + opponentTeam,
+            "Game Start",
+            JOptionPane.INFORMATION_MESSAGE);
+
+    System.out.println("Game started against " + opponent.getUsername()
+            + " with teams: " + playerTeam + " vs " + opponentTeam);
+
+    // Aquí pasamos loggedInUser para garantizar que se mantenga el usuario original
+    Board gameBoard = new Board(userRegistration, loggedInUser, opponent, playerTeam, opponentTeam);
+    gameBoard.setVisible(true);
+    this.setVisible(false);
+}
+
 
     private void AccountButtonActionPerformed(java.awt.event.ActionEvent evt) {
         MyAccount account = new MyAccount(userRegistration, loggedInUser);

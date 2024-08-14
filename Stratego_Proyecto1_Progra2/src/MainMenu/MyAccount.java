@@ -5,6 +5,7 @@ import player.User;
 import player.UserRegistration;
 
 import javax.swing.*;
+import java.util.List;
 
 public class MyAccount extends javax.swing.JFrame {
 
@@ -50,6 +51,7 @@ public class MyAccount extends javax.swing.JFrame {
         LogGamesButton = new JButton(new ImageIcon(getClass().getResource("/resourcesmain/botomain1.png")));
         LogGamesButton.setFont(new java.awt.Font("Skia", java.awt.Font.BOLD, 18));
         LogGamesButton.setBounds(460, 230, 330, 60);
+        LogGamesButton.addActionListener(this::LogGamesButtonActionPerformed); // Activar el botón
         jPanel1.add(LogGamesButton);
 
         ChangePassButton = new JButton(new ImageIcon(getClass().getResource("/resourcesmain/botomain1.png")));
@@ -75,6 +77,25 @@ public class MyAccount extends javax.swing.JFrame {
         // Set up JFrame content
         getContentPane().add(jPanel1);
         pack();
+    }
+
+    private void LogGamesButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        List<String> logs = loggedInUser.getLogs();
+
+        if (logs.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No games played yet.", "Game Logs", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            StringBuilder logsMessage = new StringBuilder("<html><body><h2>Latest Games</h2><ul>");
+            for (String log : logs) {
+                logsMessage.append("<li>").append(log).append("</li>");
+            }
+            logsMessage.append("</ul></body></html>");
+
+            JLabel logsLabel = new JLabel(logsMessage.toString());
+            JScrollPane scrollPane = new JScrollPane(logsLabel);
+            scrollPane.setPreferredSize(new java.awt.Dimension(400, 300));
+            JOptionPane.showMessageDialog(this, scrollPane, "Game Logs", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     private void MainMenuButtonActionPerformed(java.awt.event.ActionEvent evt) {
