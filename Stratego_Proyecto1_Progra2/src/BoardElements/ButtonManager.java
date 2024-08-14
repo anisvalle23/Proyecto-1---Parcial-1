@@ -148,82 +148,43 @@ public class ButtonManager implements ActionListener {
         updateSurrenderButtons();
     }
 
-public void togglePieceVisibility() {
-    boolean pieceHidden = false; // Variable para rastrear si ya hemos ocultado una pieza
-
-    for (int row = 0; row < tilesBTN.length; row++) {
-        for (int col = 0; col < tilesBTN[row].length; col++) {
-            JButton button = tilesBTN[row][col];
-            ImageIcon icon = (ImageIcon) button.getIcon();
-
-            if (icon != null) {
-                String description = icon.getDescription();
-
-                if (description != null) {
-                    // Si es el turno del jugador 1 (Héroes)
-                    if (isPlayer1Turn) {
-                        if (description.startsWith("villains")) {
-                            // Ocultar solo una pieza de Villains y habilitar las demás
-                            if (!pieceHidden) {
-                                button.setIcon(new ImageIcon(getClass().getClassLoader().getResource("resourcesmain/crash.png")));
-                                pieceHidden = true; // Marcar que hemos ocultado una pieza
-                            } else {
-                                button.setIcon(icon); // Mostrar las otras piezas de Villains normalmente
-                            }
-                        } else if (description.startsWith("heroes")) {
-                            // Asegurarse de que las piezas de Héroes se muestren correctamente
-                            button.setIcon(icon);
-                        }
-                    } 
-                    // Si es el turno del jugador 2 (Villains)
-                    else {
-                        if (description.startsWith("heroes")) {
-                            // Ocultar solo una pieza de Héroes y habilitar las demás
-                            if (!pieceHidden) {
-                                button.setIcon(new ImageIcon(getClass().getClassLoader().getResource("resourcesmain/crash.png")));
-                                pieceHidden = true; // Marcar que hemos ocultado una pieza
-                            } else {
-                                button.setIcon(icon); // Mostrar las otras piezas de Héroes normalmente
-                            }
-                        } else if (description.startsWith("villains")) {
-                            // Asegurarse de que las piezas de Villains se muestren correctamente
-                            button.setIcon(icon);
-                        }
-                    }
-                    // Mantener el botón habilitado para permitir interacción
-                    button.setEnabled(true);
-                }
-            }
-        }
-    }
-
-    // Si no se ha ocultado ninguna pieza, asegura que la primera pieza del equipo contrario se oculte
-    if (!pieceHidden) {
-        for (int row = 0; row < tilesBTN.length; row++) {
-            for (int col = 0; col < tilesBTN[row].length; col++) {
-                JButton button = tilesBTN[row][col];
-                ImageIcon icon = (ImageIcon) button.getIcon();
-
-                if (icon != null) {
-                    String description = icon.getDescription();
-
-                    if (description != null) {
-                        if (isPlayer1Turn && description.startsWith("villains")) {
-                            // Ocultar la primera pieza de Villains si no se ocultó ninguna antes
-                            button.setIcon(new ImageIcon(getClass().getClassLoader().getResource("resourcesmain/crash.png")));
-                            return; // Salir después de ocultar la primera pieza
-                        } else if (!isPlayer1Turn && description.startsWith("heroes")) {
-                            // Ocultar la primera pieza de Héroes si no se ocultó ninguna antes
-                            button.setIcon(new ImageIcon(getClass().getClassLoader().getResource("resourcesmain/crash.png")));
-                            return; // Salir después de ocultar la primera pieza
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
+//public void togglePieceVisibility() {
+//    for (int row = 0; row < tilesBTN.length; row++) {
+//        for (int col = 0; col < tilesBTN[row].length; col++) {
+//            JButton button = tilesBTN[row][col];
+//            ImageIcon icon = (ImageIcon) button.getIcon();
+//
+//            if (icon != null) {
+//                String description = icon.getDescription();
+//
+//                if (description != null) {
+//                    // Si es el turno del jugador 1 (Héroes)
+//                    if (isPlayer1Turn) {
+//                        if (description.startsWith("villains")) {
+//                            // Ocultar todas las piezas de Villains
+//                            button.setIcon(new ImageIcon(getClass().getClassLoader().getResource("resourcesmain/crash.png")));
+//                        } else if (description.startsWith("heroes")) {
+//                            // Asegurarse de que las piezas de Héroes se muestren correctamente
+//                            button.setIcon(icon);
+//                        }
+//                    } 
+//                    // Si es el turno del jugador 2 (Villains)
+//                    else {
+//                        if (description.startsWith("heroes")) {
+//                            // Ocultar todas las piezas de Héroes
+//                            button.setIcon(new ImageIcon(getClass().getClassLoader().getResource("resourcesmain/crash.png")));
+//                        } else if (description.startsWith("villains")) {
+//                            // Asegurarse de que las piezas de Villains se muestren correctamente
+//                            button.setIcon(icon);
+//                        }
+//                    }
+//                    // Mantener el botón habilitado para permitir interacción
+//                    button.setEnabled(true);
+//                }
+//            }
+//        }
+//    }
+//}
 
 
     // Este método se llama al cambiar el turno
@@ -231,12 +192,12 @@ public void togglePieceVisibility() {
         isPlayer1Turn = !isPlayer1Turn;
         updateTurnLabel();
         updateSurrenderButtons(); // Actualizar el estado de los botones de rendición según el turno
-        togglePieceVisibility();  // Ocultar/Mostrar las piezas según el turno
+//        togglePieceVisibility();  // Ocultar/Mostrar las piezas según el turno
     }
 
     // Método para inicializar visibilidad de las piezas al inicio
     public void initializePieceVisibility() {
-        togglePieceVisibility();
+//        togglePieceVisibility();
     }
 
     private void updateSurrenderButtons() {
@@ -398,7 +359,7 @@ private String getPieceAbility(PieceType pieceType) {
         resetSelection();
 
         // Ocultar piezas del oponente después del movimiento
-        togglePieceVisibility();
+//        togglePieceVisibility();
     }
 
     private void handlePieceMovement(JButton pressedButton, PieceType selectedType, PieceType targetType, int targetRow, int targetCol) {
