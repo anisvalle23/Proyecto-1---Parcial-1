@@ -8,7 +8,7 @@ import player.User;
 import player.UserRegistration;
 import MainComponents.MainMenu;
 
-public class ButtonManager implements ActionListener {
+public class ButtonManager implements ActionListener, PhantomInterface {
 
     private JButton[][] tilesBTN;
     private JLabel selectedPieceLabel;
@@ -63,6 +63,8 @@ public class ButtonManager implements ActionListener {
         updateTurnLabel();
         addListeners();
     }
+    
+    
 
     public void handleSurrender(boolean isPlayer1Surrender) {
         if ((isPlayer1Surrender && !isPlayer1Turn) || (!isPlayer1Surrender && isPlayer1Turn)) {

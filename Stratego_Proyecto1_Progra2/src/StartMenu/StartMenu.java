@@ -69,6 +69,88 @@ public class StartMenu extends JFrame {
         getContentPane().add(mainPanel);
         pack();
     }
+    
+        // Clase abstracta temporizador 
+    public abstract class temporizador {
+
+        // Parámetros esenciales para un temporizador
+        private long startTime;
+        private long endTime;
+        private long duration;
+
+        public temporizador(long duration) {
+            this.duration = duration;
+        }
+
+        protected abstract void onTimerStart();
+        protected abstract void onTimerEnd();
+        protected abstract void onTimerTick(long remainingTime);
+
+        public void start() {
+            startTime = System.currentTimeMillis();
+            endTime = startTime + duration;
+            onTimerStart();
+
+            while (System.currentTimeMillis() < endTime) {
+                long remainingTime = endTime - System.currentTimeMillis();
+                onTimerTick(remainingTime);
+                try {
+                    Thread.sleep(1000); // Espera 1 segundo entre cada tick
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            onTimerEnd();
+        }
+
+        public long getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(long startTime) {
+            this.startTime = startTime;
+        }
+
+        public long getEndTime() {
+            return endTime;
+        }
+
+        public void setEndTime(long endTime) {
+            this.endTime = endTime;
+        }
+
+        public long getDuration() {
+            return duration;
+        }
+
+        public void setDuration(long duration) {
+            this.duration = duration;
+        }
+    }
+
+    // herencia: Clase concreta timer que hereda de temporizador
+    public class Timer extends temporizador {
+
+        public Timer(long duration) {
+            super(duration);
+        }
+
+        @Override
+        protected void onTimerStart() {
+            System.out.println("Temporizador iniciado. Duración: " + getDuration() + " milisegundos.");
+        }
+
+        @Override
+        protected void onTimerEnd() {
+            System.out.println("Temporizador finalizado.");
+        }
+
+        @Override
+        protected void onTimerTick(long remainingTime) {
+            System.out.println("Tiempo restante: " + remainingTime + " milisegundos.");
+        }
+    }
 
     private void CreateBotonActionPerformed(java.awt.event.ActionEvent evt) {
         CreatePlayer createPlayer = new CreatePlayer(userRegistration);
